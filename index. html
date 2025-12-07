@@ -1,0 +1,119 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>English to Yoruba Translator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f8f8;
+            padding: 30px;
+            max-width: 700px;
+            margin: auto;
+        }
+        h1 {
+            color: #222;
+            text-align: center;
+        }
+        .box {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            box-shadow: 0 0 6px rgba(0,0,0,0.1);
+        }
+        textarea, button {
+            width: 100%;
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+        button {
+            background: #333;
+            color: #fff;
+            border: none;
+        }
+        .contact {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 14px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+
+<h1>English to Yoruba Translator</h1>
+
+<div class="box">
+    <label>Enter English text:</label>
+    <textarea id="englishInput" rows="4" placeholder="Type something..."></textarea>
+
+    <button onclick="translateText()">Translate</button>
+
+    <label>Yoruba Translation:</label>
+    <textarea id="yorubaOutput" rows="4" readonly></textarea>
+</div>
+
+<div class="contact">
+    <p>Contact: +2349032769540</p>
+</div>
+
+<script>
+const dictionary = {
+    "hello": "bawo",
+    "hi": "pele",
+    "how": "bawo",
+    "are": "ni",
+    "you": "wọ",
+    "i": "emi",
+    "am": "ni",
+    "fine": "dara",
+    "good": "dara",
+    "morning": "aarọ",
+    "afternoon": "ọsan",
+    "evening": "alẹ",
+    "night": "oru",
+    "food": "ounjẹ",
+    "water": "omi",
+    "come": "bọ",
+    "go": "lọ",
+    "house": "ilé",
+    "home": "ilé",
+    "school": "ile-iwe",
+    "book": "iwe",
+    "name": "orukọ",
+    "my": "mi",
+    "your": "rẹ",
+    "friend": "ọrẹ",
+    "boy": "ọmọkunrin",
+    "girl": "ọmọbìnrin",
+    "man": "ọkunrin",
+    "woman": "obinrin",
+    "love": "fẹ",
+    "see": "ri",
+    "walk": "rin",
+    "run": "sare",
+    "talk": "sọ",
+    "listen": "gbọ",
+    "wait": "duro"
+};
+
+function translateWord(word) {
+    let clean = word.toLowerCase().replace(/[.,!?]/g, "");
+    return dictionary[clean] ? dictionary[clean] : word;
+}
+
+function translateText() {
+    let text = document.getElementById("englishInput").value.trim();
+    let words = text.split(/\s+/);
+    let translated = words.map(w => translateWord(w));
+    document.getElementById("yorubaOutput").value = translated.join(" ");
+}
+</script>
+
+</body>
+</html>
