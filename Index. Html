@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Block Puzzle (15-puzzle)</title>
+  <style>
+    :root{--size:360px;--gap:8px;--bg:#111;--tile:#e9e9e9;--accent:#2b6cb0}
+    *{box-sizing:border-box;font-family:Inter, system-ui, sans-serif}
+    body{display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;background:linear-gradient(180deg,#0f1724,#071029);color:#fff}
+    .wrap{width:calc(var(--size) + 220px);display:flex;gap:20px;align-items:flex-start}
+    .board{width:var(--size);height:var(--size);background:#0b1220;border-radius:12px;padding:var(--gap);display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:var(--gap);}
+    .tile{display:flex;align-items:center;justify-content:center;background:var(--tile);color:#0b1220;font-weight:700;border-radius:8px;font-size:1.4rem;cursor:pointer;user-select:none;transition:transform .12s ease, box-shadow .12s ease}
+    .tile.empty{background:transparent;cursor:default;box-shadow:none}
+    .tile:active{transform:scale(.98)}
+    .controls{width:200px}
+    h1{font-size:16px;margin:0 0 12px 0}
+    button{width:100%;padding:10px;border-radius:8px;border:0;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+    .small{font-size:13px;color:#cbd5e1;margin-top:8px}
+    .info{margin-top:12px;background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;font-size:13px}
+    .footer{margin-top:10px;font-size:12px;color:#9aa7bf}
+    @media (max-width:700px){.wrap{flex-direction:column;align-items:center;width:100%;padding:16px} .controls{width:100%;max-width:360px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div>
+      <div class="board" id="board" aria-label="15 puzzle board"></div>
+      <div class="footer" style="text-align:center;margin-top:12px">Click a tile next to the empty space to move it.</div>
+    </div>
+
+    <aside class="controls">
+      <h1>Simple Block Puzzle</h1>
+      <button id="shuffleBtn">Shuffle</button>
+      <div class="small" id="moves">Moves: 0</div>
+      <div class="info" id="status">Status: Ready</div>
+      <div class="info" style="margin-top:8px">Grid: 4 × 4 (classic 15-puzzle). To change size, edit <code>GRID_SIZE</code>.</div>
+    </aside>
+  </div>
+
+  <script>
+    const GRID_SIZE = 4;
+    const boardEl = document.getElementById('board');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    const movesEl = document.getElementById('moves');
+    const statusEl = document.getElementById('status');
+
+    let tiles = [];
+    let moves = 0;
+
+    function init() {
+      boardEl.innerHTML = '';
+      tiles = [];
+      for (let i = 1; i <= GRID_SIZE * GRID_SIZE - 1; i++) tiles.push(i);
+      tiles.push(0);
+      render();
+      setStatus('Ready');
+      moves = 0; updateMoves();
+    }
+
+    function render() {
+      boardEl.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
+      boardEl.style.gridTemplateRows = `repeat(${GRID_SIZE}, 1fr)`;
+      boardEl.innerHTML = '';
+      tiles.forEach((val, idx) => {
+        const tile = document.createElement('div');
+        tile.className = 'tile' + (val === 0 ? ' empty' : '');
+        tile.textContent = val === 0 ? '' : val;
+        if (val !== 0) tile.addEventListener('click', () => tryMove(idx));
+        boardEl.appendChild(tile);
+      });
+    }
+
+    function coords(index) {
+      return {r: Math.floor(index / GRID_SIZE), c: index % GRID_SIZE};
+    }
+
+    function isAdjacent(i1, i2) {
+      const a = coords(i1), b = coords(i2);
+      return Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1;
+    }
+
+    function tryMove(index) {
+      const emptyIndex = tiles.indexOf(0);
+      if (isAdjacent(index, emptyIndex)) {
+        swap(index, emptyIndex);
+        moves++; updateMoves();
+        render();
+        if (isSolved()) setStatus(`You solved it in ${moves} moves.`);
+      } else {
+        setStatus('That tile is not next to the empty space.');
+      }
+    }
+
+    function swap(i, j) {
+      [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+    }
+
+    function shuffle(times = 200) {
+      tiles = [];
+      for (let i = 1; i <= GRID_SIZE * GRID_SIZE - 1; i++) tiles.push(i);
+      tiles.push(0);
+
+      let emptyIndex = tiles.indexOf(0);
+      for (let t = 0; t < times; t++) {
+        const neighbors = [];
+        for (let i = 0; i < tiles.length; i++) if (isAdjacent(i, emptyIndex)) neighbors.push(i);
+        const pick = neighbors[Math.floor(Math.random() * neighbors.length)];
+        swap(pick, emptyIndex);
+        emptyIndex = pick;
+      }
+      moves = 0; updateMoves();
+      render();
+      setStatus('Shuffled. Go!');
+    }
+
+    function isSolved() {
+      for (let i = 0; i < tiles.length - 1; i++) if (tiles[i] !== i + 1) return false;
+      return tiles[tiles.length - 1] === 0;
+    }
+
+    function updateMoves() { movesEl.textContent = `Moves: ${moves}`; }
+    function setStatus(text) { statusEl.textContent = `Status: ${text}`; }
+
+    shuffleBtn.addEventListener('click', () => shuffle(300));
+
+    init();
+  </script>
+</body>
+</html><!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Simple Block Puzzle (15-puzzle)</title>
+  <style>
+    :root{--size:360px;--gap:8px;--bg:#111;--tile:#e9e9e9;--accent:#2b6cb0}
+    *{box-sizing:border-box;font-family:Inter, system-ui, sans-serif}
+    body{display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;background:linear-gradient(180deg,#0f1724,#071029);color:#fff}
+    .wrap{width:calc(var(--size) + 220px);display:flex;gap:20px;align-items:flex-start}
+    .board{width:var(--size);height:var(--size);background:#0b1220;border-radius:12px;padding:var(--gap);display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:var(--gap);}
+    .tile{display:flex;align-items:center;justify-content:center;background:var(--tile);color:#0b1220;font-weight:700;border-radius:8px;font-size:1.4rem;cursor:pointer;user-select:none;transition:transform .12s ease, box-shadow .12s ease}
+    .tile.empty{background:transparent;cursor:default;box-shadow:none}
+    .tile:active{transform:scale(.98)}
+    .controls{width:200px}
+    h1{font-size:16px;margin:0 0 12px 0}
+    button{width:100%;padding:10px;border-radius:8px;border:0;background:var(--accent);color:#fff;font-weight:600;cursor:pointer}
+    .small{font-size:13px;color:#cbd5e1;margin-top:8px}
+    .info{margin-top:12px;background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;font-size:13px}
+    .footer{margin-top:10px;font-size:12px;color:#9aa7bf}
+    @media (max-width:700px){.wrap{flex-direction:column;align-items:center;width:100%;padding:16px} .controls{width:100%;max-width:360px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div>
+      <div class="board" id="board" aria-label="15 puzzle board"></div>
+      <div class="footer" style="text-align:center;margin-top:12px">Click a tile next to the empty space to move it.</div>
+    </div>
+
+    <aside class="controls">
+      <h1>Simple Block Puzzle</h1>
+      <button id="shuffleBtn">Shuffle</button>
+      <div class="small" id="moves">Moves: 0</div>
+      <div class="info" id="status">Status: Ready</div>
+      <div class="info" style="margin-top:8px">Grid: 4 × 4 (classic 15-puzzle). To change size, edit <code>GRID_SIZE</code>.</div>
+    </aside>
+  </div>
+
+  <script>
+    const GRID_SIZE = 4;
+    const boardEl = document.getElementById('board');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    const movesEl = document.getElementById('moves');
+    const statusEl = document.getElementById('status');
+
+    let tiles = [];
+    let moves = 0;
+
+    function init() {
+      boardEl.innerHTML = '';
+      tiles = [];
+      for (let i = 1; i <= GRID_SIZE * GRID_SIZE - 1; i++) tiles.push(i);
+      tiles.push(0);
+      render();
+      setStatus('Ready');
+      moves = 0; updateMoves();
+    }
+
+    function render() {
+      boardEl.style.gridTemplateColumns = `repeat(${GRID_SIZE}, 1fr)`;
+      boardEl.style.gridTemplateRows = `repeat(${GRID_SIZE}, 1fr)`;
+      boardEl.innerHTML = '';
+      tiles.forEach((val, idx) => {
+        const tile = document.createElement('div');
+        tile.className = 'tile' + (val === 0 ? ' empty' : '');
+        tile.textContent = val === 0 ? '' : val;
+        if (val !== 0) tile.addEventListener('click', () => tryMove(idx));
+        boardEl.appendChild(tile);
+      });
+    }
+
+    function coords(index) {
+      return {r: Math.floor(index / GRID_SIZE), c: index % GRID_SIZE};
+    }
+
+    function isAdjacent(i1, i2) {
+      const a = coords(i1), b = coords(i2);
+      return Math.abs(a.r - b.r) + Math.abs(a.c - b.c) === 1;
+    }
+
+    function tryMove(index) {
+      const emptyIndex = tiles.indexOf(0);
+      if (isAdjacent(index, emptyIndex)) {
+        swap(index, emptyIndex);
+        moves++; updateMoves();
+        render();
+        if (isSolved()) setStatus(`You solved it in ${moves} moves.`);
+      } else {
+        setStatus('That tile is not next to the empty space.');
+      }
+    }
+
+    function swap(i, j) {
+      [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+    }
+
+    function shuffle(times = 200) {
+      tiles = [];
+      for (let i = 1; i <= GRID_SIZE * GRID_SIZE - 1; i++) tiles.push(i);
+      tiles.push(0);
+
+      let emptyIndex = tiles.indexOf(0);
+      for (let t = 0; t < times; t++) {
+        const neighbors = [];
+        for (let i = 0; i < tiles.length; i++) if (isAdjacent(i, emptyIndex)) neighbors.push(i);
+        const pick = neighbors[Math.floor(Math.random() * neighbors.length)];
+        swap(pick, emptyIndex);
+        emptyIndex = pick;
+      }
+      moves = 0; updateMoves();
+      render();
+      setStatus('Shuffled. Go!');
+    }
+
+    function isSolved() {
+      for (let i = 0; i < tiles.length - 1; i++) if (tiles[i] !== i + 1) return false;
+      return tiles[tiles.length - 1] === 0;
+    }
+
+    function updateMoves() { movesEl.textContent = `Moves: ${moves}`; }
+    function setStatus(text) { statusEl.textContent = `Status: ${text}`; }
+
+    shuffleBtn.addEventListener('click', () => shuffle(300));
+
+    init();
+  </script>
+</body>
+</html>
